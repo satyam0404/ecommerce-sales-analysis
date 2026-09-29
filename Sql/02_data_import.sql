@@ -93,13 +93,21 @@ FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
--- Row count check (expected approx: 99441, 99441, 112650, 103886, 99223, 32951, 3095, 71, 1000163)
-SELECT 'customers' AS tbl, COUNT(*) AS total_rows FROM customers
-UNION ALL SELECT 'orders', COUNT(*) FROM orders
-UNION ALL SELECT 'order_items', COUNT(*) FROM order_items
+-- -----------------------------------------------------------------------
+-- Row count audit — save result permanently in tbl_row_count_audit
+-- Use later to verify data hasn't changed between sessions.
+-- -----------------------------------------------------------------------
+DROP TABLE IF EXISTS tbl_row_count_audit;
+CREATE TABLE tbl_row_count_audit AS
+SELECT 'customers'   AS table_name, COUNT(*) AS total_rows FROM customers
+UNION ALL SELECT 'orders',         COUNT(*) FROM orders
+UNION ALL SELECT 'order_items',    COUNT(*) FROM order_items
 UNION ALL SELECT 'order_payments', COUNT(*) FROM order_payments
-UNION ALL SELECT 'order_reviews', COUNT(*) FROM order_reviews
-UNION ALL SELECT 'products', COUNT(*) FROM products
-UNION ALL SELECT 'sellers', COUNT(*) FROM sellers
-UNION ALL SELECT 'translation', COUNT(*) FROM product_category_name_translation
-UNION ALL SELECT 'geolocation', COUNT(*) FROM geolocation;
+UNION ALL SELECT 'order_reviews',  COUNT(*) FROM order_reviews
+UNION ALL SELECT 'products',       COUNT(*) FROM products
+UNION ALL SELECT 'sellers',        COUNT(*) FROM sellers
+UNION ALL SELECT 'translation',    COUNT(*) FROM product_category_name_translation
+UNION ALL SELECT 'geolocation',    COUNT(*) FROM geolocation;
+
+-- Quick verify:
+SELECT * FROM tbl_row_count_audit;

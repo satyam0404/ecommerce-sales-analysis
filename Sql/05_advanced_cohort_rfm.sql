@@ -58,6 +58,8 @@ cohort_table AS (
     GROUP BY fp.cohort_month, co.order_month, month_index
 )
 -- Pivot: one row per cohort, columns for each month_index
+DROP TABLE IF EXISTS tbl_cohort_retention_counts;
+CREATE TABLE tbl_cohort_retention_counts AS
 SELECT
     cohort_month,
     MAX(CASE WHEN month_index = 0  THEN active_users ELSE 0 END) AS month_0_base,
@@ -71,6 +73,8 @@ FROM cohort_table
 WHERE cohort_month BETWEEN '2017-01' AND '2018-01'
 GROUP BY cohort_month
 ORDER BY cohort_month;
+
+SELECT * FROM tbl_cohort_retention_counts;
 
 
 -- =====================================================================
@@ -120,6 +124,8 @@ pivoted AS (
     WHERE cohort_month BETWEEN '2017-01' AND '2018-01'
     GROUP BY cohort_month
 )
+DROP TABLE IF EXISTS tbl_cohort_retention_pct;
+CREATE TABLE tbl_cohort_retention_pct AS
 SELECT
     cohort_month,
     base                                      AS cohort_size,
@@ -129,6 +135,8 @@ SELECT
     ROUND(m6 * 100.0 / base, 2)              AS retention_month_6_pct
 FROM pivoted
 ORDER BY cohort_month;
+
+SELECT * FROM tbl_cohort_retention_pct;
 
 
 -- =====================================================================
@@ -177,6 +185,8 @@ rfm_scores AS (
         NTILE(4) OVER (ORDER BY monetary_spend ASC)  AS m_score
     FROM customer_rfm_raw
 )
+DROP TABLE IF EXISTS tbl_rfm_top100;
+CREATE TABLE tbl_rfm_top100 AS
 SELECT
     customer_unique_id,
     recency_days,
@@ -194,6 +204,8 @@ SELECT
 FROM rfm_scores
 ORDER BY monetary_spend DESC
 LIMIT 100;
+
+SELECT * FROM tbl_rfm_top100;
 
 
 -- =====================================================================
@@ -282,6 +294,8 @@ cumulative_sellers AS (
         SUM(seller_gmv) OVER ()                            AS grand_total_gmv
     FROM seller_sales
 )
+DROP TABLE IF EXISTS tbl_seller_pareto;
+CREATE TABLE tbl_seller_pareto AS
 SELECT
     seller_id,
     seller_state,
@@ -295,6 +309,8 @@ FROM cumulative_sellers
 WHERE seller_rank IN (1, 10, 50, 100, 500, 1000)
    OR ROUND(running_gmv * 100.0 / grand_total_gmv, 0) IN (20, 50, 80)
 ORDER BY seller_rank;
+
+SELECT * FROM tbl_seller_pareto;
 
 
 -- =====================================================================
@@ -321,6 +337,8 @@ WITH seller_sales AS (
     ) r ON oi.order_id = r.order_id
     GROUP BY oi.seller_id, s.seller_state, s.seller_city
 )
+DROP TABLE IF EXISTS tbl_top20_sellers;
+CREATE TABLE tbl_top20_sellers AS
 SELECT
     seller_id,
     seller_state,
@@ -334,3 +352,5 @@ SELECT
 FROM seller_sales
 ORDER BY seller_gmv DESC
 LIMIT 20;
+
+SELECT * FROM tbl_top20_sellers;
