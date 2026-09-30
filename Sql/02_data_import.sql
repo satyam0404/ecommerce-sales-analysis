@@ -94,11 +94,9 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
 -- -----------------------------------------------------------------------
--- Row count audit — save result permanently in tbl_row_count_audit
--- Use later to verify data hasn't changed between sessions.
+-- Row count audit — view returns live row counts from all raw tables
 -- -----------------------------------------------------------------------
-DROP TABLE IF EXISTS tbl_row_count_audit;
-CREATE TABLE tbl_row_count_audit AS
+CREATE OR REPLACE VIEW vw_row_count_audit AS
 SELECT 'customers'   AS table_name, COUNT(*) AS total_rows FROM customers
 UNION ALL SELECT 'orders',         COUNT(*) FROM orders
 UNION ALL SELECT 'order_items',    COUNT(*) FROM order_items
@@ -110,4 +108,4 @@ UNION ALL SELECT 'translation',    COUNT(*) FROM product_category_name_translati
 UNION ALL SELECT 'geolocation',    COUNT(*) FROM geolocation;
 
 -- Quick verify:
-SELECT * FROM tbl_row_count_audit;
+SELECT * FROM vw_row_count_audit;

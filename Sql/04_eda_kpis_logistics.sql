@@ -3,8 +3,7 @@ USE olist;
 -- =====================================================================
 -- 0. Repeat customer rate (delivered orders only)
 -- =====================================================================
-DROP TABLE IF EXISTS tbl_repeat_customer_rate;
-CREATE TABLE tbl_repeat_customer_rate AS
+CREATE OR REPLACE VIEW vw_repeat_customer_rate AS
 SELECT COUNT(*) AS unique_customers,
        SUM(order_count > 1) AS repeat_customers,
        ROUND(SUM(order_count > 1) * 100.0 / COUNT(*), 2) AS repeat_pct
@@ -16,13 +15,12 @@ FROM (
     GROUP BY c.customer_unique_id
 ) t;
 
-SELECT * FROM tbl_repeat_customer_rate;
+SELECT * FROM vw_repeat_customer_rate;
 
 -- =====================================================================
 -- 2.1 Top-line business summary (delivered orders)
 -- =====================================================================
-DROP TABLE IF EXISTS tbl_business_summary;
-CREATE TABLE tbl_business_summary AS
+CREATE OR REPLACE VIEW vw_business_summary AS
 SELECT
     COUNT(DISTINCT o.order_id)                                   AS total_delivered_orders,
     COUNT(DISTINCT c.customer_unique_id)                         AS total_unique_buyers,
@@ -37,13 +35,12 @@ JOIN customers c   ON o.customer_id = c.customer_id
 JOIN order_items oi ON o.order_id = oi.order_id
 WHERE o.order_status = 'delivered';
 
-SELECT * FROM tbl_business_summary;
+SELECT * FROM vw_business_summary;
 
 -- =====================================================================
 -- 2.2 Payment method breakdown
 -- =====================================================================
-DROP TABLE IF EXISTS tbl_payment_breakdown;
-CREATE TABLE tbl_payment_breakdown AS
+CREATE OR REPLACE VIEW vw_payment_breakdown AS
 SELECT
     payment_type,
     COUNT(order_id)                                                              AS transaction_count,
@@ -56,13 +53,12 @@ FROM order_payments
 GROUP BY payment_type
 ORDER BY total_payment_value DESC;
 
-SELECT * FROM tbl_payment_breakdown;
+SELECT * FROM vw_payment_breakdown;
 
 -- =====================================================================
 -- 2.3 Top 10 states by revenue
 -- =====================================================================
-DROP TABLE IF EXISTS tbl_state_revenue;
-CREATE TABLE tbl_state_revenue AS
+CREATE OR REPLACE VIEW vw_state_revenue AS
 SELECT
     c.customer_state,
     COUNT(DISTINCT c.customer_unique_id)        AS unique_customers,
@@ -76,15 +72,14 @@ WHERE o.order_status = 'delivered'
 GROUP BY c.customer_state
 ORDER BY total_revenue DESC;
 
-SELECT * FROM tbl_state_revenue LIMIT 10;
+SELECT * FROM vw_state_revenue LIMIT 10;
 
 -- =====================================================================
 -- 3.1 Month-on-month revenue growth
 -- Note: first months (2016) and last months (Sep-Oct 2018) are partial or
 -- very small, so ignore their growth % in your findings.
 -- =====================================================================
-DROP TABLE IF EXISTS tbl_monthly_revenue_growth;
-CREATE TABLE tbl_monthly_revenue_growth AS
+CREATE OR REPLACE VIEW vw_monthly_revenue_growth AS
 WITH monthly_sales AS (
     SELECT
         DATE_FORMAT(o.order_purchase_timestamp, '%Y-%m') AS order_month,
@@ -107,14 +102,13 @@ SELECT
 FROM monthly_sales
 ORDER BY order_month;
 
-SELECT * FROM tbl_monthly_revenue_growth;
+SELECT * FROM vw_monthly_revenue_growth;
 
 -- =====================================================================
 -- 3.2 Top product categories by revenue (delivered orders)
 -- Review score is averaged per order first, so item rows are not duplicated.
 -- =====================================================================
-DROP TABLE IF EXISTS tbl_category_revenue;
-CREATE TABLE tbl_category_revenue AS
+CREATE OR REPLACE VIEW vw_category_revenue AS
 SELECT
     COALESCE(t.product_category_name_english, p.product_category_name, 'Unknown') AS category_english,
     COUNT(DISTINCT oi.order_id)  AS total_orders,
@@ -136,13 +130,12 @@ WHERE o.order_status = 'delivered'
 GROUP BY category_english
 ORDER BY total_sales_value DESC;
 
-SELECT * FROM tbl_category_revenue LIMIT 10;
+SELECT * FROM vw_category_revenue LIMIT 10;
 
 -- =====================================================================
 -- 3.3 Delivery lead time and delay rate by state
 -- =====================================================================
-DROP TABLE IF EXISTS tbl_delivery_by_state;
-CREATE TABLE tbl_delivery_by_state AS
+CREATE OR REPLACE VIEW vw_delivery_by_state AS
 SELECT
     c.customer_state,
     COUNT(o.order_id) AS delivered_orders,
@@ -158,13 +151,12 @@ WHERE o.order_status = 'delivered'
 GROUP BY c.customer_state
 ORDER BY delay_rate_pct DESC;
 
-SELECT * FROM tbl_delivery_by_state;
+SELECT * FROM vw_delivery_by_state;
 
 -- =====================================================================
 -- 3.4 Impact of delivery delay on review scores
 -- =====================================================================
-DROP TABLE IF EXISTS tbl_delay_review_impact;
-CREATE TABLE tbl_delay_review_impact AS
+CREATE OR REPLACE VIEW vw_delay_review_impact AS
 SELECT
     CASE
         WHEN o.order_delivered_customer_date > o.order_estimated_delivery_date THEN 'Delayed Delivery'
@@ -180,4 +172,4 @@ WHERE o.order_status = 'delivered'
   AND o.order_delivered_customer_date IS NOT NULL
 GROUP BY delivery_performance;
 
-SELECT * FROM tbl_delay_review_impact;
+SELECT * FROM vw_delay_review_impact;

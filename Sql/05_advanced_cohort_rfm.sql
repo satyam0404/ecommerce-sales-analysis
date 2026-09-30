@@ -22,6 +22,7 @@ USE olist;
 --   show near-zero retention after month_0 — confirming Olist behaves
 --   more like a lead-generation engine than a habitual marketplace.
 -- =====================================================================
+CREATE OR REPLACE VIEW vw_cohort_retention_counts AS
 WITH customer_first_purchase AS (
     -- Identify each unique customer's first purchase month (cohort)
     SELECT
@@ -58,8 +59,6 @@ cohort_table AS (
     GROUP BY fp.cohort_month, co.order_month, month_index
 )
 -- Pivot: one row per cohort, columns for each month_index
-DROP TABLE IF EXISTS tbl_cohort_retention_counts;
-CREATE TABLE tbl_cohort_retention_counts AS
 SELECT
     cohort_month,
     MAX(CASE WHEN month_index = 0  THEN active_users ELSE 0 END) AS month_0_base,
@@ -74,7 +73,7 @@ WHERE cohort_month BETWEEN '2017-01' AND '2018-01'
 GROUP BY cohort_month
 ORDER BY cohort_month;
 
-SELECT * FROM tbl_cohort_retention_counts;
+SELECT * FROM vw_cohort_retention_counts;
 
 
 -- =====================================================================
@@ -82,6 +81,7 @@ SELECT * FROM tbl_cohort_retention_counts;
 -- -----------------------------------------------------------------------
 -- Shows month_1 through month_6 as a percentage of the cohort base.
 -- =====================================================================
+CREATE OR REPLACE VIEW vw_cohort_retention_pct AS
 WITH customer_first_purchase AS (
     SELECT
         c.customer_unique_id,
@@ -124,8 +124,6 @@ pivoted AS (
     WHERE cohort_month BETWEEN '2017-01' AND '2018-01'
     GROUP BY cohort_month
 )
-DROP TABLE IF EXISTS tbl_cohort_retention_pct;
-CREATE TABLE tbl_cohort_retention_pct AS
 SELECT
     cohort_month,
     base                                      AS cohort_size,
@@ -136,7 +134,7 @@ SELECT
 FROM pivoted
 ORDER BY cohort_month;
 
-SELECT * FROM tbl_cohort_retention_pct;
+SELECT * FROM vw_cohort_retention_pct;
 
 
 -- =====================================================================
@@ -153,6 +151,7 @@ SELECT * FROM tbl_cohort_retention_pct;
 --   F     -> binary: 4 if repeat buyer (>1 order), 1 if one-time buyer
 --            (binary because ~97% of Olist customers buy only once)
 -- =====================================================================
+CREATE OR REPLACE VIEW vw_rfm_top100 AS
 WITH max_dataset_date AS (
     -- Use the latest purchase date as reference "today"
     SELECT MAX(order_purchase_timestamp) AS reference_date
@@ -185,8 +184,6 @@ rfm_scores AS (
         NTILE(4) OVER (ORDER BY monetary_spend ASC)  AS m_score
     FROM customer_rfm_raw
 )
-DROP TABLE IF EXISTS tbl_rfm_top100;
-CREATE TABLE tbl_rfm_top100 AS
 SELECT
     customer_unique_id,
     recency_days,
@@ -205,7 +202,7 @@ FROM rfm_scores
 ORDER BY monetary_spend DESC
 LIMIT 100;
 
-SELECT * FROM tbl_rfm_top100;
+SELECT * FROM vw_rfm_top100;
 
 
 -- =====================================================================
@@ -272,6 +269,7 @@ ORDER BY total_revenue DESC;
 --   Do the top 20% of sellers generate 80% of marketplace revenue?
 --   (Classic Pareto / Power-law check for marketplace health)
 -- =====================================================================
+CREATE OR REPLACE VIEW vw_seller_pareto AS
 WITH seller_sales AS (
     SELECT
         oi.seller_id,
@@ -294,8 +292,6 @@ cumulative_sellers AS (
         SUM(seller_gmv) OVER ()                            AS grand_total_gmv
     FROM seller_sales
 )
-DROP TABLE IF EXISTS tbl_seller_pareto;
-CREATE TABLE tbl_seller_pareto AS
 SELECT
     seller_id,
     seller_state,
@@ -310,7 +306,7 @@ WHERE seller_rank IN (1, 10, 50, 100, 500, 1000)
    OR ROUND(running_gmv * 100.0 / grand_total_gmv, 0) IN (20, 50, 80)
 ORDER BY seller_rank;
 
-SELECT * FROM tbl_seller_pareto;
+SELECT * FROM vw_seller_pareto;
 
 
 -- =====================================================================
@@ -318,6 +314,7 @@ SELECT * FROM tbl_seller_pareto;
 -- -----------------------------------------------------------------------
 -- For portfolio: highlight the top sellers with full metrics.
 -- =====================================================================
+CREATE OR REPLACE VIEW vw_top20_sellers AS
 WITH seller_sales AS (
     SELECT
         oi.seller_id,
@@ -337,8 +334,6 @@ WITH seller_sales AS (
     ) r ON oi.order_id = r.order_id
     GROUP BY oi.seller_id, s.seller_state, s.seller_city
 )
-DROP TABLE IF EXISTS tbl_top20_sellers;
-CREATE TABLE tbl_top20_sellers AS
 SELECT
     seller_id,
     seller_state,
@@ -353,4 +348,4 @@ FROM seller_sales
 ORDER BY seller_gmv DESC
 LIMIT 20;
 
-SELECT * FROM tbl_top20_sellers;
+SELECT * FROM vw_top20_sellers;
