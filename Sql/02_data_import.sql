@@ -9,7 +9,7 @@ SET GLOBAL local_infile = 1;
 -- Import order matters: customers before orders (foreign key)
 
 -- 1. customers
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/olist_customers_dataset.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/olist_customers_dataset.csv'
 INTO TABLE customers
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
@@ -17,7 +17,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
 -- 2. orders (empty dates become NULL)
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/olist_orders_dataset.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/olist_orders_dataset.csv'
 INTO TABLE orders
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
@@ -30,7 +30,7 @@ SET order_approved_at = NULLIF(@approved, ''),
     order_delivered_customer_date = NULLIF(@delivered, '');
 
 -- 3. products (empty numeric values become NULL)
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/olist_products_dataset.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/olist_products_dataset.csv'
 INTO TABLE products
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
@@ -46,7 +46,7 @@ SET product_name_lenght = NULLIF(@nl,''),
     product_width_cm = NULLIF(@wd,'');
 
 -- 4. sellers
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/olist_sellers_dataset.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/olist_sellers_dataset.csv'
 INTO TABLE sellers
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
@@ -54,7 +54,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
 -- 5. order_items
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/olist_order_items_dataset.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/olist_order_items_dataset.csv'
 INTO TABLE order_items
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
@@ -62,7 +62,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
 -- 6. order_payments
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/olist_order_payments_dataset.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/olist_order_payments_dataset.csv'
 INTO TABLE order_payments
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
@@ -70,7 +70,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
 -- 7. order_reviews
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/olist_order_reviews_dataset.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/olist_order_reviews_dataset.csv'
 INTO TABLE order_reviews
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
@@ -78,7 +78,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
 -- 8. product_category_name_translation
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/product_category_name_translation.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/product_category_name_translation.csv'
 INTO TABLE product_category_name_translation
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
@@ -86,7 +86,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
 -- 9. geolocation (largest file, ~1M rows)
-LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/olist_geolocation_dataset.csv'
+LOAD DATA LOCAL INFILE 'C:/Users/ACER/Desktop/ecommerce-sales-analysis/ecommerce-sales-analysis/Data/raw_data/olist_geolocation_dataset.csv'
 INTO TABLE geolocation
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
