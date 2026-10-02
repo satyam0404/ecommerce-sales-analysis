@@ -1,0 +1,8 @@
+customer_segment,customer_count,avg_spend,total_revenue,customer_pct,revenue_pct
+Standard One-Time Buyers,62114,135.65,8425603.48,66.53,54.63
+Promising High-Spenders,22475,261.26,5871818.72,24.07,38.07
+Champions,1373,343.67,471859.89,1.47,3.06
+Lost / Churned,5967,43.69,260682.36,6.39,1.69
+Needs Attention (Repeat),676,309.1,208954.2,0.72,1.35
+Cant Lose Them (At Risk),582,291.37,169578.3,0.62,1.1
+Loyal Customers,170,82.15,13964.82,0.18,0.09
