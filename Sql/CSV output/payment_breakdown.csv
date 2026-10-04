@@ -1,0 +1,6 @@
+payment_type,transaction_count,transaction_share_pct,total_payment_value,revenue_share_pct,avg_installments,avg_ticket_size
+credit_card,76795,73.92,12542084.19,78.34,3.5,163.32
+boleto,19784,19.04,2869361.27,17.92,1.0,145.03
+voucher,5775,5.56,379436.87,2.37,1.0,65.70
+debit_card,1529,1.47,217989.79,1.36,1.0,142.57
+not_defined,3,0.00,0.00,0.00,1.0,0.00
